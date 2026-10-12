@@ -1,5 +1,5 @@
 
-# Lab 02 — Group Policy Management (GPO)
+# Lab 02 : Group Policy Management (GPO)
 
 ## Overview
 
