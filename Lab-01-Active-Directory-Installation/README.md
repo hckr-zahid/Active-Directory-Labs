@@ -1,12 +1,12 @@
 # Lab 01 — Active Directory Installation and Configuration
 
-## 📌 Overview
+## Overview
 
 This lab focuses on installing and configuring **Active Directory Domain Services (AD DS)** in a Windows Server environment. It demonstrates the initial setup of a Windows domain infrastructure and the promotion of a Windows Server machine to a Domain Controller.
 
 This lab is part of the [Active Directory Labs](../README.md) project, which documents hands-on Windows Server administration, domain management, Group Policy, and security configurations.
 
-## 🎯 Objectives
+## Objectives
 
 - Understand the fundamentals of Active Directory Domain Services.
 - Install the AD DS server role.
@@ -15,7 +15,7 @@ This lab is part of the [Active Directory Labs](../README.md) project, which doc
 - Understand the relationship between a Domain Controller, domain, and DNS.
 - Verify the Active Directory installation and domain configuration.
 
-## 🛠️ Technologies and Tools
+## Technologies and Tools
 
 - Microsoft Windows Server
 - Active Directory Domain Services (AD DS)
@@ -24,7 +24,7 @@ This lab is part of the [Active Directory Labs](../README.md) project, which doc
 - Active Directory administrative tools
 - Virtualization environment, if applicable
 
-## ⚙️ Lab Environment
+## Lab Environment
 
 | Component | Details |
 |---|---|
@@ -37,7 +37,7 @@ This lab is part of the [Active Directory Labs](../README.md) project, which doc
 
 *Note: Replace generic environment details with your actual server configuration where appropriate.*
 
-## 🧪 Implementation Steps
+## Implementation Steps
 
 ### 1. Prepare the Windows Server
 
@@ -70,7 +70,7 @@ This lab is part of the [Active Directory Labs](../README.md) project, which doc
 - Verify the domain and default directory containers.
 - Check that the required Active Directory and DNS services are running.
 
-## ✅ Verification
+## Verification
 
 The installation should be considered successful when the following checks pass:
 
@@ -83,7 +83,7 @@ The installation should be considered successful when the following checks pass:
 
 *Mark each item only after verifying it in your lab environment.*
 
-## 📸 Screenshots and Evidence
+## Screenshots and Evidence
 
 Store relevant screenshots in the `screenshots/` directory.
 
@@ -95,13 +95,13 @@ Suggested evidence includes:
 4. DNS Manager showing the relevant DNS zones.
 5. Successful domain login or other appropriate verification.
 
-## 📄 Lab Report
+## Lab Report
 
 For detailed implementation notes, configuration information, and verification evidence, see:
 
 **[View Lab 01 Report (PDF)](Lab-01-Report.pdf)**
 
-## 🎓 Learning Outcomes
+## Learning Outcomes
 
 Through this lab, the key learning areas include:
 
@@ -111,14 +111,14 @@ Through this lab, the key learning areas include:
 - Understanding the importance of DNS in Active Directory.
 - Verifying domain infrastructure after installation.
 
-## 🔐 Security Considerations
+## Security Considerations
 
 - Use strong, unique administrative passwords.
 - Keep the lab environment isolated from unauthorized access.
 - Avoid including passwords, recovery credentials, or other secrets in screenshots and documentation.
 - Apply security updates and follow appropriate Windows Server hardening practices.
 
-## 🔗 Related Labs
+## Related Labs
 
 - [Main Repository — Active Directory Labs](../README.md)
 - [Lab 02 — Group Policy Management](../Lab-02-Group-Policy-Management/README.md)
