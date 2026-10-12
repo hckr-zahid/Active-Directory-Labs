@@ -88,6 +88,9 @@ This repository is intended for educational purposes and authorized lab environm
 ##  Project Status
 
 **In Progress** — New labs, documentation, and verification evidence will be added as the project develops.
+## Roadmap
+
+See the [Active Directory Labs Roadmap](docs/lab-roadmap.md) for planned labs and project progress.
 
 ##  Author
 
