@@ -2,7 +2,7 @@
 
 A hands-on learning portfolio documenting the implementation, configuration, management, and security of **Microsoft Active Directory Domain Services (AD DS)** in a Windows Server lab environment.
 
-This repository contains practical lab exercises, configuration documentation, screenshots, verification evidence, and reports demonstrating core Windows Server and Active Directory administration skills.
+This repository contains practical lab exercises, configuration documentation, figures, verification evidence, and reports demonstrating core Windows Server and Active Directory administration skills.
 
 ## Project Objectives
 
