@@ -1,4 +1,4 @@
-# Active Directory Labs — Roadmap
+# Active Directory Labs Roadmap
 
 ## Overview
 
