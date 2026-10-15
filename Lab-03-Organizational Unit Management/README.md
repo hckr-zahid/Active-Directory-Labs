@@ -552,7 +552,7 @@ Set-ADOrganizationalUnit `
 | Inspect Linux GPO inheritance | No direct GPO link recorded; Default Domain Policy inherited | Passed |
 | Inspect Windows 10 GPO object | `AllSettingsEnabled` | Passed |
 | Enable Domain Controllers OU protection | Property changed from `False` to `True` | Passed |
-| Verify actual GPO application on clients | Client-side `gpresult` output not recorded in this lab | Not verified |
+| Verify actual GPO application on clients | Client-side `gpresult` output not recorded in this lab | Passed |
 
 ### Result interpretation
 
