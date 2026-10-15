@@ -11,19 +11,20 @@
 
 ## Table of Contents
 
-1. Executive Summary
-2. Lab Objectives and Scope
-3. Lab Environment and Endpoint Addressing
-4. Network Topology
-5. DNS Architecture and Reverse Lookup Configuration
-6. DNS Resolution and Validation Results
-7. DHCP Installation and Active Directory Authorization
-8. DHCP Scope Creation and Configuration
-9. Kali Linux DHCP Client Test and Lease Verification
+1.  Executive Summary
+2.  Lab Objectives and Scope
+3.  Lab Environment and Endpoint Addressing
+4.  Network Topology
+5.  DNS Architecture and Reverse Lookup Configuration
+6.  DNS Resolution and Validation Results
+7.  DHCP Installation and Active Directory Authorization
+8.  DHCP Scope Creation and Configuration
+9.  Kali Linux DHCP Client Test and Lease Verification
 10. Kali Linux Restoration and Service Verification
-11. Security Lessons and Hardening Recommendations
-12. Knowledge Check and Answers
-13. Appendix: Important Commands
+11. Troubleshooting and Problem Resolution
+12. Security Lessons and Hardening Recommendations
+13. Knowledge Check and Answers
+14. Appendix: Important Commands
 
 ---
 
@@ -455,36 +456,224 @@ The recorded results showed all three services running with automatic startup:
 
 **Result:** The DHCP test was completed, Kali's original static configuration was restored, and the core infrastructure services remained operational.
 
-## 11. Security Lessons and Hardening Recommendations
+## 11. Troubleshooting and Problem Resolution
 
-### 11.1 Active Directory DNS integration
+This section documents common DNS and DHCP issues that may occur in the Windows Server 2019 Active Directory lab, along with diagnostic commands and recommended corrective actions. Troubleshooting should begin with non-disruptive checks to preserve the existing domain configuration and minimize service interruptions.
 
-Domain-joined systems should use the designated internal Active Directory DNS server for domain resolution and service discovery. Incorrect DNS settings can interfere with domain controller discovery, authentication, and Group Policy processing.
+### 11.1 DNS Resolution Failures
 
-### 11.2 DHCP authorization
+**Possible symptoms**
+- Hostnames fail to resolve to IP addresses.
+- Reverse lookups return no PTR record.
+- Domain clients cannot locate the domain controller.
+- External hostnames cannot be resolved.
 
-Authorizing the Windows DHCP server in Active Directory helps reduce the risk of unauthorized Windows DHCP servers distributing network configuration to domain clients. Authorization should be combined with appropriate network controls and monitoring.
+**Diagnostic commands**
 
-### 11.3 Address-pool segmentation
+Run the following commands on DC01:
 
-Keeping static infrastructure addresses outside the dynamic DHCP pool reduces the likelihood of address conflicts. Document static assignments, DHCP ranges, and any exclusions or reservations.
+```powershell
+Get-Service DNS
 
-### 11.4 Network isolation and gateway security
+Get-DnsServerZone
 
-The private host-only network limits direct exposure of lab endpoints. However, DC01's bridged WAN interface connects it to the physical network. Apply least-privilege firewall rules, restrict administrative access, and review RRAS/NAT configuration regularly.
+Resolve-DnsName dc01.zroots.local -Server 10.1.1.10
 
-### 11.5 DNS record accuracy
+Resolve-DnsName 10.1.1.10 -Server 10.1.1.10
 
-Maintain accurate forward and reverse DNS records. Review records when systems are renamed, removed, or assigned new addresses. Do not assume that a successful query alone verifies every record in a zone.
+Resolve-DnsName www.microsoft.com -Server 10.1.1.10
+```
 
-### 11.6 Evidence-based validation
+**Recommended resolution**
 
-Record the actual output of validation commands and preserve screenshots of relevant configuration. Distinguish between successful individual tests and a comprehensive security assessment.
+1. Confirm that the DNS Server service is running.
+2. Verify that the `zroots.local` forward lookup zone exists.
+3. Confirm that the `1.1.10.in-addr.arpa` reverse lookup zone exists and contains the required PTR records.
+4. Verify that clients use `10.1.1.10` as their internal DNS server.
+5. If external name resolution fails, investigate root hints, network connectivity, firewall rules, and DNS forwarding configuration as applicable.
 
-### 11.7 Preserve established lab configurations
+Do not delete or recreate DNS zones simply because one query fails. First identify the affected record or service.
 
-Use temporary client changes for testing and restore the original configuration afterward. Avoid changing static addresses on existing domain-joined systems unnecessarily.
+### 11.2 Active Directory LDAP SRV Record Failures
 
+**Possible symptoms**
+- Domain clients cannot locate a domain controller.
+- Domain join or authentication operations fail.
+- The expected LDAP SRV record is missing or incorrect.
+
+**Diagnostic command**
+
+```powershell
+Resolve-DnsName `
+    _ldap._tcp.dc._msdcs.zroots.local `
+    -Type SRV `
+    -Server 10.1.1.10
+```
+
+**Recommended resolution**
+
+1. Confirm that DC01 is using the intended internal DNS configuration.
+2. Verify that the `_msdcs.zroots.local` zone and relevant SRV records exist.
+3. Check the health of Active Directory and DNS using appropriate diagnostic tools.
+4. Investigate DNS registration only after reviewing the existing records and identifying the cause.
+
+Avoid restarting domain services or changing DNS registration settings without evidence of a specific fault.
+
+### 11.3 DHCP Client Does Not Receive an IP Address
+
+**Possible symptoms**
+- Kali Linux does not receive an address from the DHCP pool.
+- The client receives an unexpected address.
+- The DHCP server does not display a lease.
+
+**Diagnostic commands on DC01**
+
+```powershell
+Get-Service DHCPServer
+
+Get-DhcpServerInDC
+
+Get-DhcpServerv4Scope
+
+Get-DhcpServerv4ScopeStatistics -ScopeId 10.1.1.0
+
+Get-DhcpServerv4Lease -ScopeId 10.1.1.0
+```
+
+**Diagnostic commands on Kali Linux**
+
+```bash
+nmcli connection show
+nmcli device status
+ip -4 address show dev eth0
+ip route
+```
+
+**Recommended resolution**
+
+1. Confirm that Kali is connected to the intended VMware host-only network, `MyLabNet`.
+2. Verify that the DHCP Server service is running and the server is authorized in Active Directory.
+3. Confirm that the `MyLabNet-DHCP` scope is active.
+4. Check whether the scope has available addresses.
+5. Confirm that the NetworkManager connection is configured for automatic IPv4 assignment during the test.
+6. Inspect the DHCP lease table and server event logs for evidence of failed requests.
+
+Do not change the static configurations of WIN10-01 or Windows 11 just to troubleshoot a DHCP test.
+
+### 11.4 Incorrect DHCP Options
+
+**Possible symptoms**
+- A client receives an IP address but cannot reach other networks.
+- Internal domain names do not resolve.
+- The client uses an incorrect DNS suffix or gateway.
+
+**Diagnostic command on DC01**
+
+```powershell
+Get-DhcpServerv4OptionValue -ScopeId 10.1.1.0
+```
+
+**Expected configuration**
+
+| DHCP option | Expected value |
+|---|---|
+| Option 003 — Router | `10.1.1.10` |
+| Option 006 — DNS Server | `10.1.1.10` |
+| Option 015 — DNS Domain | `zroots.local` |
+| Lease duration | 8 days |
+
+**Recommended resolution**
+
+Compare the configured options with the expected values. Correct only the option that is confirmed to be incorrect. Then renew the test client's DHCP configuration if necessary and verify the assigned gateway and DNS settings.
+
+### 11.5 Duplicate or Unexpected IP Addresses
+
+**Possible symptoms**
+- A client reports an IP address conflict.
+- Two systems appear to use the same address.
+- A previously leased address remains visible in the DHCP console after the client changes its configuration.
+
+**Recommended resolution**
+
+1. Check the client's current address and routing table.
+2. Review the DHCP lease database and the documented static-address inventory.
+3. Determine whether the address is currently assigned to another device before making changes.
+4. Review the DHCP pool and any exclusions or reservations.
+5. Avoid deleting lease records until their status and the client's actual configuration have been checked.
+
+**Lab-specific note:** During this lab, Kali temporarily received `10.1.1.100` through DHCP and was subsequently restored to `10.1.1.30/24`. DC01 continued to display the previous lease as active. The lease was left in place because the final Kali interface checks confirmed that its static configuration had been restored. A server-side lease record alone does not prove that the client is still using that address.
+
+### 11.6 Kali Linux Cannot Reach DC01 or an External IP
+
+**Possible symptoms**
+- Kali cannot ping `10.1.1.10`.
+- External IP connectivity fails.
+- DNS lookups fail despite an apparently valid address.
+
+**Diagnostic commands**
+
+```bash
+ip -4 address show dev eth0
+ip route
+ping -c 4 10.1.1.10
+ping -c 4 1.1.1.1
+nslookup dc01.zroots.local 10.1.1.10
+nslookup www.microsoft.com 10.1.1.10
+```
+
+**Recommended resolution**
+
+1. Verify that Kali has an address in `10.1.1.0/24`.
+2. Confirm that its default gateway is `10.1.1.10`.
+3. Test connectivity to DC01 before testing an external IP.
+4. Test DNS separately from IP connectivity.
+5. If internal connectivity succeeds but external connectivity fails, inspect RRAS/NAT routing, the DC01 WAN configuration, and firewall rules.
+
+A successful ping to an external IP does not prove that DNS is working. Similarly, a successful DNS lookup does not prove that every application or network route is operational.
+
+### 11.7 DNS, DHCP, or RRAS Service Is Not Running
+
+**Diagnostic command**
+
+```powershell
+Get-Service DHCPServer, DNS, RemoteAccess |
+    Format-Table Name, Status, StartType -AutoSize
+```
+
+**Expected state for this lab**
+
+| Service | Expected status | Startup type |
+|---|---|---|
+| DHCP Server | Running | Automatic |
+| DNS Server | Running | Automatic |
+| Routing and Remote Access | Running | Automatic |
+
+**Recommended resolution**
+
+1. Identify which service is affected.
+2. Review its recent Windows event logs and configuration.
+3. Check whether a dependency, configuration error, or resource issue explains the failure.
+4. Apply a targeted correction based on the evidence.
+5. Recheck the service state and repeat the relevant DNS or DHCP validation test.
+
+Do not restart all infrastructure services as a first troubleshooting step. Unnecessary restarts can interrupt domain services and obscure the original cause.
+
+### 11.8 Troubleshooting Evidence and Recordkeeping
+
+For every issue investigated, record:
+
+- The observed symptom and time of occurrence.
+- The affected system and network interface.
+- The diagnostic commands executed.
+- The actual command output or relevant event-log details.
+- The identified root cause, if confirmed.
+- The corrective action taken.
+- The result of the verification test.
+- Any remaining issue or follow-up action.
+
+Do not mark an issue as resolved until the relevant validation test succeeds. Where no fault occurred during this lab, document the procedure as a troubleshooting reference rather than claiming that a fault was encountered and fixed.
+
+**Troubleshooting conclusion:** The recorded Lab 05 tests completed successfully. This section provides diagnostic procedures for future incidents; it does not imply that all the listed faults occurred during the exercise.
 ## 12. Knowledge Check and Answers
 
 **Q1. What is the purpose of DNS in an Active Directory environment?**
