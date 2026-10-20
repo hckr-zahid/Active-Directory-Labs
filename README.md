@@ -23,7 +23,7 @@ This repository contains practical lab exercises, configuration documentation, f
 | Lab 03 | Organizational Unit (OU) Management | Completed|
 | Lab 04 | User and Group Management | Completed |
 | Lab 05 | DNS and DHCP Configuration | Completed |
-| Lab 06 | File Server and Permissions | Planned |
+| Lab 06 | File Server and Permissions | Completed |
 | Lab 07 | Account Lockout and Password Policies | Planned |
 | Lab 08 | Active Directory Security and Hardening | Planned |
 
