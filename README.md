@@ -20,9 +20,9 @@ This repository contains practical lab exercises, configuration documentation, f
 |---|---|---|
 | Lab 01 | Active Directory Installation and Configuration | Completed |
 | Lab 02 | Group Policy Management (GPO) | Completed |
-| Lab 03 | Organizational Unit (OU) Management | Planned |
-| Lab 04 | User and Group Management | Planned |
-| Lab 05 | DNS and DHCP Configuration | Planned |
+| Lab 03 | Organizational Unit (OU) Management | Completed|
+| Lab 04 | User and Group Management | Completed |
+| Lab 05 | DNS and DHCP Configuration | Completed |
 | Lab 06 | File Server and Permissions | Planned |
 | Lab 07 | Account Lockout and Password Policies | Planned |
 | Lab 08 | Active Directory Security and Hardening | Planned |
